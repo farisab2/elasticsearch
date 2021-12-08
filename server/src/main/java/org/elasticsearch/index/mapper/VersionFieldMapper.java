@@ -11,6 +11,7 @@ package org.elasticsearch.index.mapper;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.NumericDocValuesField;
 import org.apache.lucene.search.Query;
+import org.elasticsearch.index.fielddata.FieldData;
 import org.elasticsearch.index.fielddata.IndexFieldData;
 import org.elasticsearch.index.fielddata.IndexNumericFieldData.NumericType;
 import org.elasticsearch.index.fielddata.ScriptDocValues.Longs;
@@ -19,6 +20,7 @@ import org.elasticsearch.index.fielddata.plain.SortedNumericIndexFieldData;
 import org.elasticsearch.index.query.QueryShardException;
 import org.elasticsearch.index.query.SearchExecutionContext;
 import org.elasticsearch.script.field.DelegateDocValuesField;
+import org.elasticsearch.script.field.VersionDocValuesField;
 import org.elasticsearch.search.lookup.SearchLookup;
 
 import java.util.Collections;
@@ -63,7 +65,7 @@ public class VersionFieldMapper extends MetadataFieldMapper {
             return new SortedNumericIndexFieldData.Builder(
                 name(),
                 NumericType.LONG,
-                (dv, n) -> new DelegateDocValuesField(new Longs(new LongsSupplier(dv)), n)
+                (dv, n) -> new VersionDocValuesField(FieldData.toString(dv), n)
             );
         }
     }
