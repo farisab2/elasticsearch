@@ -41,6 +41,8 @@ setup:
                             analyzer: standard
                         rank:
                             type: integer
+                        version:
+                            type: version
 
 
     - do:
@@ -54,6 +56,7 @@ setup:
                 nanos: 2015-01-01T12:10:30.123456789Z
                 geo_point: 41.12,-71.34
                 ip: 192.168.0.1
+                version: 1.0.0
                 keyword: not split at all
                 long: 12348732141234
                 integer: 134134566
@@ -82,6 +85,7 @@ setup:
               date: [2017-01-01T12:11:12, 2018-01-01T12:11:12]
               nanos: [2015-01-01T12:10:30.123456789Z, 2015-01-01T12:10:30.987654321Z]
               keyword: ["one string", "another string"]
+              version: [1.0.0, 1.2.1, 1.1.1]
               long: [1152921504606846976, 576460752303423488]
               integer: [5, 17, 29]
               short: [6, 18, 30, 45]
@@ -615,7 +619,34 @@ setup:
     - match: { hits.hits.0.fields.field.0: "not split at all" }
     - match: { hits.hits.1.fields.field.0: "" }
     - match: { hits.hits.2.fields.field.0: "another string, one string" }
+---
+# CS427 issue: https://github.com/nextcloud/android/issues/9102
+"version":
+  - skip:
+      features: "warnings"
 
+  -do:
+    search:
+      rest_total_hits_as_int: true
+      body:
+        query: {term:{_id: 1}}
+        script_fields:
+          field:
+            script:
+              source: "doc['version'].get(0)"
+  -match: {hits.hits.0.fields.fields.0: 1.0.0}
+  -do:
+    search:
+      rest_total_hits_as_int: true
+      body:
+        query: { term: { _id: 1 } }
+        script_fields:
+          field:
+            script:
+              source: "doc['version'].value"
+  -match: { hits.hits.0.fields.fields.0: 1.0.0 }
+  -match: { hits.hits.1.fields.fields.0: 1.1.1 }
+  -match: { hits.hits.2.fields.fields.0: 1.2.1 }
 ---
 "long":
     - skip:

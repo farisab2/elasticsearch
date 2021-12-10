@@ -65,7 +65,7 @@ public class VersionFieldMapper extends MetadataFieldMapper {
             return new SortedNumericIndexFieldData.Builder(
                 name(),
                 NumericType.LONG,
-                (dv, n) -> new VersionDocValuesField(FieldData.toString(dv), n)
+                (dv, n) -> new VersionDocValuesField(FieldData.toString(dv), n) //CS427 issue https://github.com/nextcloud/android/issues/9102
             );
         }
     }
